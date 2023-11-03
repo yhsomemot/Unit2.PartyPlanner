@@ -25,35 +25,37 @@ const getParties = async () => {
 //POST EVENT
 const createParty = async (name, description, date, location) => {
     try {
+        date = "2023-11-09T00:00:00.000Z";
         const response = await fetch(EVENTS_URI, {
             method: "POST",
-            headers: { "Content-Type": "application/json" }
-            body: JSON.stringify({ name, description, date, location })
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, description, date, location }),
         });
         const json = await response.json();
-        if (json.error) {
+        if(json.error){
             throw new Error(json.error);
         }
-    } catch (error) {
+        init();
+    }catch(error){
         console.error(error)
     }
-
-};
+}
 
 
 //DELETE EVENT
-const deleteParty = async () => {
+const deleteParty = async (id) => {
     try {
-        const response = await fetch(EVENTS_URI + "/" + id, { method: "DELETE" }
-    body: JSON.stringify({ name, description, date, location })
-    });
-    const json = await response.json();
-    if (json.error) {
-        throw new Error(json.error);
+        const response = await fetch(EVENTS_URI+"/"+id, {method: "DELETE"});
+        const json = response.json();
+        const parties = json.data;
+        if(json.error){
+            throw new Error(json.error);
+        }
+        state.events =  parties;
+        init();
     } catch (error) {
         console.error(error)
     }
-
 }
 
 function renderEvents() {
