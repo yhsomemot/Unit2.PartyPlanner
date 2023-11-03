@@ -7,6 +7,7 @@ const state = {
 const partiesList = document.querySelector('#display-parties');
 
 //GET EVENT
+
 const getParties = async () => {
     try {
         const response = await fetch(EVENTS_URI);
@@ -19,50 +20,73 @@ const getParties = async () => {
     } catch (error) {
         console.log(error)
     }
-//get doesn't need a render.
+    //get doesn't need a render.
 };
 
 //POST EVENT
-const createParty = async (name, description, date, location) => {
+
+const createParty = async (name, description, unformattedDate, location) => {
     try {
-        date = "2023-11-09T00:00:00.000Z";
+        const date = new Date(unformattedDate);
         const response = await fetch(EVENTS_URI, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ name, description, date, location }),
         });
         const json = await response.json();
-        if(json.error){
+        if (json.error) {
             throw new Error(json.error);
         }
-        init();
-    }catch(error){
-        console.error(error)
-    }
-}
-
-
-//DELETE EVENT
-const deleteParty = async (id) => {
-    try {
-        const response = await fetch(EVENTS_URI+"/"+id, {method: "DELETE"});
-        const json = response.json();
-        const parties = json.data;
-        if(json.error){
-            throw new Error(json.error);
-        }
-        state.events =  parties;
         init();
     } catch (error) {
         console.error(error)
     }
 }
 
+document.querySelector("form").addEventListener("submit", (evt) => {
+    const formEl = evt.target;
+    evt.preventDefault();
+    createParty(
+        formEl.title.value,
+        formEl.description.value,
+        formEl.data.value,
+        formEl.location.value
+    );
+
+    //clear inputs
+    formEl.title.value = "";
+    formEl.locaiton.value = "";
+    formEl.data.value = "";
+    formEl.location.value = "";
+
+    //focus the first form element
+    formEl.title.focus();
+});
+
+//DELETE EVENT
+
+const deleteParty = async (id) => {
+    try {
+      const response = await fetch(EVENTS_URI + "/" + id, { method: "DELETE" });
+      const json = response.json();
+      const parties = json.data;
+      if (json.error) {
+        throw new Error(json.error);
+      }
+      state.events = parties;
+      init();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
 function renderEvents() {
-    if (!state.events.length) {
-        partiesList.innerHTML = `<li>No events found</li>`;
+    if (!state.events.length || !state.events.length) {
+        partiesElement = document.createElement("div");
+        partiesElement.innerHTML = `<li>No events found</li>`;
         return;
     }
+
     const partyItems = state.events.map((party) => {
         const partyItem = document.createElement("li");
         partyItem.classList.add("party");
@@ -82,15 +106,15 @@ function renderEvents() {
         deleteButton.addEventListener("click", () => deleteParty(party.id));
         return partyItem;
     });
-
-    partiesList.replaceChild(...partyItems); //calling and replacing. 
+    console.log(partyItems)
+    partiesList.replaceChildren(...partyItems); //calling and replacing. 
 }
 
 const init = async () => { //initializing the function
     await getParties();
     renderEvents();
 
-}
+};
 
 
 init(); //render
