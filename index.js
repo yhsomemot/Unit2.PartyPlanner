@@ -1,70 +1,94 @@
 const EVENTS_URI = "https://fsa-crud-2aa9294fe819.herokuapp.com/api/2308-ACC-PT-WEB-PT-A/events";
 
-const state = 
+const state = {
+    events: [],
+}
+
+const partiesList = document.querySelector('#display-parties');
 
 //GET EVENT
 const getParties = async () => {
     try {
         const response = await fetch(EVENTS_URI);
-        const json = response.json();
+        const json = await response.json();
         const parties = json.data;
-        if(json.error){
+        if (json.error) {
             throw new Error(json.error);
         }
-        return parties;
+        state.events = parties;
     } catch (error) {
         console.log(error)
     }
-
+//get doesn't need a render.
 };
 
-init();
-
 //POST EVENT
-
 const createParty = async (name, description, date, location) => {
     try {
         const response = await fetch(EVENTS_URI, {
             method: "POST",
             headers: { "Content-Type": "application/json" }
-        body: JSON.stringify({ name, description, date, location })
+            body: JSON.stringify({ name, description, date, location })
         });
         const json = await response.json();
-        if(json.error){
+        if (json.error) {
             throw new Error(json.error);
         }
-    } catch(error){
+    } catch (error) {
         console.error(error)
     }
-    
+
 };
 
 
 //DELETE EVENT
-
-const deleteParty = async () =>{
+const deleteParty = async () => {
     try {
-    const response = await fetch(EVENTS_URI+"/"+id, {
-        method: "DELETE",
-    }
+        const response = await fetch(EVENTS_URI + "/" + id, { method: "DELETE" }
     body: JSON.stringify({ name, description, date, location })
     });
     const json = await response.json();
-    if(json.error){
+    if (json.error) {
         throw new Error(json.error);
+    } catch (error) {
+        console.error(error)
     }
-} catch(error){
-    console.error(error)
-}
 
 }
 
-fuction renderEvents()
+function renderEvents() {
+    if (!state.events.length) {
+        partiesList.innerHTML = `<li>No events found</li>`;
+        return;
+    }
+    const partyItems = state.events.map((party) => {
+        const partyItem = document.createElement("li");
+        partyItem.classList.add("party");
+        partyItem.innerHTML =
+            `
+        <h2>${party.name}</h2>
+        <p>${party.description}</p>
+        <p>${party.date}</p>
+        <p>${party.location}</p>
+        <p>${party.id}</p>
+        `;
+
+        const deleteButton = document.createElement("button");
+        deleteButton.textContent = "Delete Party";
+        partyItem.append(deleteButton);
+
+        deleteButton.addEventListener("click", () => deleteParty(party.id));
+        return partyItem;
+    });
+
+    partiesList.replaceChild(...partyItems); //calling and replacing. 
+}
 
 const init = async () => { //initializing the function
-    const parties = await createParties();
-    console.log(parties); //The log was being outputted before the getParties was finished, so we had to await it. (not working though)
-}
-//this is to show that we are fetching corrently.
+    await getParties();
+    renderEvents();
 
-init();
+}
+
+
+init(); //render

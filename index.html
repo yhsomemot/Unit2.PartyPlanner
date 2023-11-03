@@ -7,22 +7,24 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <script src="index.js"></script>
+   
     <div id = "create-party">
         <form action="submit">
-            <label for="title">Party Name</label>
+            <label>Party Name</label>
             <input type="text" name="title">
-            <label for="time">Time</label>
+            <label>Time</label>
             <input type="time" name="time">
-            <label for="location">Location</label>
+            <label>Location</label>
             <input type="text" name="location">
-            <label for="description">Description</label>
+            <label>Description</label>
             <input type="text" name="description">
             <button type="submit" name="add-button">Add</button>
         </form>
     </div>
-    <div id="display-parties">
-        
-    </div>
+    
+<!-- make sure its down here cus it renders synconously -->
+    <div id="display-parties"></div> 
+
+    <script src="index.js"></script>
 </body>
 </html>
